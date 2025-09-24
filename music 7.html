@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NM PROJECT• Single File</title>
+  <style>
+    :root{
+      --bg:linear-gradient(90deg, #FFD700, #FFA500, #FFEC8B); 
+      --panel:linear-gradient(45deg, #000000, #434343, #1a1a1a); 
+      --panel-2:#2a2a2a; 
+      --muted:#c0c0c0; 
+      --text:#fff; 
+      --accent:linear-gradient(90deg, #FFD700, #FFA500, #FFEC8B);
+      --card:linear-gradient(45deg, #ff0000, #ff4d4d, #990000); 
+      --card-hover:#2a2a2a; 
+      --outline:#2a2a2a;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial; color:var(--text); background:var(--bg);}
+    a{color:inherit; text-decoration:none}
+    .app{display:grid; grid-template-columns:260px 1fr; grid-template-rows:1fr auto; height:100vh; gap:12px; padding:12px}
+    .sidebar{background:var(--panel); border-radius:16px; padding:16px; display:flex; flex-direction:column; gap:12px}
+    .nav a{display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; color:#eaeaea}
+    .nav a:hover{background:var(--panel-2)}
+    .logo{display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.3px}
+    .chip{font-size:12px; padding:2px 8px; border:1px solid var(--outline); border-radius:999px; color:var(--muted)}
+    .library{flex:1; overflow:auto; border-top:1px solid var(--outline); padding-top:12px}
+    .lib-header{display:flex; align-items:center; justify-content:space-between; color:var(--muted); margin-bottom:8px}
+    .lib-list{display:grid; gap:10px}
+    .lib-item{display:flex; gap:12px; padding:10px; border-radius:12px; background:var(--card); cursor:pointer}
+    .lib-item:hover{background:var(--card-hover)}
+    .lib-item img{width:52px; height:52px; border-radius:8px; object-fit:cover}
+    .main{background:var(--panel); border-radius:16px; padding:16px; display:flex; flex-direction:column; min-width:0}
+    .toolbar{display:flex; gap:10px; align-items:center; justify-content:space-between}
+    .search{flex:1; display:flex; align-items:center; gap:8px; background:var(--panel-2); border:1px solid var(--outline); padding:10px 12px; border-radius:10px}
+    .search input{flex:1; background:transparent; border:0; outline:0; color:var(--text)}
+    .grid{display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:14px; margin-top:14px}
+    .card{background:var(--card); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:10px; position:relative; cursor:pointer}
+    .card:hover{background:var(--card-hover)}
+    .card img{width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:10px}
+    .title{font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .subtitle{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .play-fab{position:absolute; right:18px; bottom:78px; width:44px; height:44px; border-radius:50%; background:var(--accent); display:grid; place-items:center; opacity:0; transform:translateY(6px); transition:all .2s}
+    .card:hover .play-fab{opacity:1; transform:translateY(0)}
+    .tracks{margin-top:10px; border-top:1px solid var(--outline)}
+    .track{display:grid; grid-template-columns:36px 1fr 80px; gap:10px; align-items:center; padding:10px; border-radius:10px; cursor:pointer}
+    .track:hover{background:var(--panel-2)}
+    .track img{width:36px; height:36px; border-radius:6px; object-fit:cover}
+    .track .t-title{font-size:14px}
+    .track .t-artist{font-size:12px; color:var(--muted)}
+    .dur{font-size:12px; color:var(--muted); text-align:right}
+    .player{grid-column:1/-1; background:var(--panel); border-radius:16px; padding:10px 14px; display:grid; grid-template-columns:320px 1fr 320px; align-items:center; gap:12px}
+    .now{display:flex; align-items:center; gap:12px; min-width:0}
+    .now img{width:56px; height:56px; border-radius:10px; object-fit:cover}
+    .meta{min-width:0}
+    .meta .title{font-size:14px}
+    .meta .subtitle{font-size:12px}
+    .controls{display:flex; flex-direction:column; align-items:center; gap:6px}
+    .buttons{display:flex; align-items:center; gap:10px}
+    .btn{width:34px; height:34px; display:grid; place-items:center; border-radius:999px; background:transparent; border:1px solid var(--outline); color:var(--text); cursor:pointer}
+    .btn:hover{background:var(--panel-2)}
+    .btn.primary{width:40px; height:40px; border:0; background:var(--accent); color:#000; font-weight:700}
+    .progress{display:flex; align-items:center; gap:10px; width:100%}
+    .time{font-size:12px; color:var(--muted); width:42px; text-align:center}
+    input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:999px; background:#3a3a3a; outline:none}
+    input[type=range]::-webkit-slider-thumb{appearance:none; width:14px; height:14px; border-radius:50%; background:#fff; border:2px solid #000}
+    .right{display:flex; align-items:center; gap:10px; justify-content:flex-end}
+    .vol{display:flex; align-items:center; gap:8px; width:160px}
+    @media (max-width:1200px){.grid{grid-template-columns:repeat(4,1fr)}}
+    @media (max-width:900px){.app{grid-template-columns:1fr; grid-template-rows:auto 1fr auto} .sidebar{order:1} .main{order:2} .player{order:3; grid-template-columns:1fr}} 
+    @media (max-width:600px){.grid{grid-template-columns:repeat(2,1fr)} .now img{display:none}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="logo">BEATBOX </div>
+      <div class="library"><div class="lib-header"><span>Your Playlists</span></div><div class="lib-list" id="playlistList">  
+      <div class="lib-item" data-playlist="HAPPY">    <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=400&auto=format&fit=crop"/>    <div><div class="title">HAPPY</div><div class="subtitle">Lo-fi • 35 songs</div></div>  </div> 
+      <div class="lib-item" data-playlist="LOVE">    <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=400&auto=format&fit=crop"/>    <div><div class="title">LOVE</div><div class="subtitle">Chill & Indie</div></div>  </div> 
+      <div class="lib-item" data-playlist="WORKOUT">    <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=400&auto=format&fit=crop"/>    <div><div class="title">WORKOUT</div><div class="subtitle">Chill & Indie</div></div>  </div>      
+      <div class="lib-item" data-playlist="ENGLISH">    <img src="https://images.unsplash.com/photo-1513883049090-d0b7439799bf?q=80&w=400&auto=format&fit=crop"/>    <div><div class="title">ENGLISH</div><div class="subtitle">High energy</div></div>  </div>
+      <div class="lib-item" data-playlist="MELODY">    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=400&auto=format&fit=crop"/>    <div><div class="title">MELODY</div><div class="subtitle">Soothing tunes</div></div>  </div>
+      <div class="lib-item" data-playlist="HINDI">    <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=400&auto=format&fit=crop"/>    <div><div class="title">HINDI</div><div class="subtitle">Bollywood hits</div></div>  </div>
+    </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="toolbar">
+        <div class="search">  
+          <span>🔎</span>  
+          <input id="searchInput" placeholder="Search songs… (title or artist)"/>
+        </div>
+        <button id="homeBtn" class="btn">⌂</button>
+        <button id="xBtn" class="btn">x</button>
+      </div>
+      <section class="grid" id="cardGrid"></section>
+      <section class="tracks" id="tracksList"></section>
+    </main>
+    <!-- PLAYER -->
+    <footer class="player">
+      <div class="now"><img id="cover" src="" alt="cover"/><div class="meta"><div class="title" id="songTitle">—</div><div class="subtitle" id="songArtist">—</div></div>
+      </div>
+      <div class="controls"><div class="buttons">  <button class="btn" id="shuffleBtn">🔀</button>  <button class="btn" id="prevBtn">⏮</button>  <button class="btn primary" id="playPauseBtn">▶</button>  <button class="btn" id="nextBtn">⏭</button>  <button class="btn" id="repeatBtn">🔁</button></div><div class="progress">  <span class="time" id="currentTime">0:00</span>  <input type="range" id="seek" min="0" max="1000" value="0"/>  <span class="time" id="duration">0:00</span></div>
+      </div>
+      <div class="right"><div class="vol"><input type="range" id="volume" min="0" max="1" step="0.01" value="0.8"/><span>🕪</span></div><button class="btn" id="queueBtn">📃</button><button class="btn" id="likeBtn">♡</button>
+      </div>
+      <audio id="audio"></audio>
+    </footer>
+  </div>
+  <script>
+    // ======= Demo Tracks =======
+    const demoTracks = [
+      
+      {title:"Monica", artist:"Anirudh Ravichander", cover:"monica.jpg", src:"monica.mp3", duration:214},
+      {title:"Chammak challo shah Rukh Khan, kareena kapoor", artist:"Vishal-shekhar", cover:"Chammak.jpg", src:"Chammak challo shah Rukh Khan, kareena kapoor.mp3", duration:214},
+      {title:"Kesariya-Bramastra Rahin  kapoor, Alia bhatt", artist:"Arijit Singh", cover:"Kesariya.jpg", src:"Kesariya-Bramastra Rahin  kapoor, Alia bhatt.mp3", duration:214},
+      {title:"Tainu khabar nahi-Arijt singh Munjya", artist:"Arijit Singh & Sachin-Jigar", cover:"Tainu.jpg", src:"Tainu khabar nahi-Arijt singh Munjya.mp3", duration:214},
+      {title:"Paradesiya param sundari-sidharth M", artist:"Sonu Nigam  Krishnakali Saha & Sachin-Jigar", cover:"Paradesiya.jpg", src:"Paradesiya param sundari-sidharth M.mp3",  duration:214},
+      {title:"Mera dil tera deewana", artist:"Sarit Dutta", cover:"Mera.jpg", src:"Mera dil tera deewana.mp3", duration:214},
+      {title:"Shaky (ly) sanju rathod Ft. Isha malviya", artist:"Sanju Rathod", cover:"SHAKY.jpg", src:"Shaky (ly) sanju rathod Ft. Isha malviya.mp3", duration:214},
+      {title:"Chennai Express shahrukh khan, deepika padukone", artist:"VISHAL-SHEKHAR", cover:"Chennai.jpg", src:"Chennai Express shahrukh khan, deepika padukone.mp3", duration:214},
+      {title:"Raataan Lambiyan-shershaah sidharth m", artist:"Tanishk Bagchi", cover:"Raataan.jpg", src:"Raataan Lambiyan-shershaah sidharth m.mp3", duration:214},
+      {title:"Saree ke fall sa R. Rajkumar-pritam", artist:"Pritam", cover:"Saree.jpg", src:"Saree ke fall sa R. Rajkumar-pritam.mp3", duration:214},
+      {title:"Chalega shahrukh khan, Nayanthara Jawan", artist:"Anirudh Ravichander", cover:"Chalega.jpg", src:"Chalega shahrukh khan, Nayanthara Jawan.mp3", duration:214},
+      {title:"Raanjhanaa song, Dhanush, sonam kapoor", artist:"Tanishk Bagchi", cover:"Raanjhanaa.jpg", src:"Raanjhanaa song, Dhanush, sonam kapoor.mp3", duration:214},
+      {title:"Guru tere bina ", artist:"A.R.Rahman", cover:"tere bina.jpg", src:"Guru tere bina .mp3", duration:214},
+      {title:"Saiyaara song Ahaanpanday-Aneet padda", artist:"", cover:"Saiyaara.jpg", src:"Saiyaara song Ahaanpanday-Aneet padda.mp3", duration:214},
+      {title:"Tam tak", artist:"A.R.Rahman", cover:"Tam.jpg", src:"Tam tak.mp3", duration:214},
+      {title:"Mitwa", artist:"Shankar Ehsaan Loy, Shankar Mahadevan,", cover:"Mitwa.jpg", src:"Mitwa.mp3", duration:214},
+      {title:"Chikni chameli", artist:"Ajay Atul", cover:"Chikni chameli.jpg", src:"Chikni chameli.mp3", duration:214},
+      {title:"Khairiyat sushahant singh", artist:"DJ Phukan & Sunny M.R.", cover:"Khairiyat.jpg", src:"Khairiyat sushahant singh.mp3", duration:214},
+      {title:"Sawadeeka ", artist:"Aniruth ravichandran", cover:"Sawadeeka.jpg", src:"Sawadeeka .mp3", duration:214},
+      {title:"Yathe Yathe  ", artist:"G. V. Prakash Kumar", cover:"Yathe.jpg", src:"Yathe Yathe  .mp3", duration:214},
+      {title:"Munbe Vaa En Anbe Vaa ", artist:"A.R Rahman", cover:"Munbe.jpg", src:"Munbe Vaa En Anbe Vaa .mp3", duration:214},
+      {title:"Urugi urugi", artist:"siddhu kumar", cover:"Urugi.jpg", src:"Urugi urugi.mp3", duration:214},
+      {title:"Chilanchirukiye ", artist:"Sean Roldan, Jim Sathya", cover:"Chilanchirukiye.jpg", src:"Chilanchirukiye .mp3", duration:214},
+      {title:"Mudhal Nee Mudivum Nee", artist:"dharbuka siva", cover:"Mudhal.jpg", src:"Mudhal Nee Mudivum Nee.mp3", duration:214},
+      {title:"KanmoodiThirakumbothu", artist:"devi sri prasad", cover:"KanmoodiThirakumbothu.jpg", src:"KanmoodiThirakumbothu.mp3", duration:214},
+      {title:"Sirikkadhey ", artist:"Aniruth ravichandran", cover:"Sirikkadhey.jpg", src:"Sirikkadhey .mp3", duration:214},
+      {title:"Marry me ", artist:"A.R Rahman", cover:"Marry.jpg", src:"Marry me .mp3", duration:214},
+      {title:"Innum Konjam Naeram", artist:"A.R Rahman", cover:"Innum.jpg", src:"Innum Konjam Naeram.mp3", duration:214},
+      {title:"Nenjukkul Peidhidum", artist:"Harris jayaraj", cover:"Nenjukkul.jpg", src:"Nenjukkul Peidhidum.mp3", duration:214},
+      {title:"Vilambara Idaiveli", artist:"Hiphop Tamizha", cover:"Vilambara.jpg", src:"Vilambara Idaiveli.mp3", duration:214},
+      {title:"Onakkaaga Poranthaenae", artist:"Justin Prabhakaran", cover:"Onakkaaga.jpg", src:"Onakkaaga Poranthaenae.mp3", duration:214},
+      {title:"Para para", artist:"G.V. Prakash Kumar", cover:"Para.jpg", src:"Para para.mp3", duration:214},
+      {title:"Hey Minnale", artist:"G.V. Prakash Kumar", cover:"Hey.jpg", src:"Hey Minnale.mp3", duration:214},
+      {title:"Kadhaippoma", artist:"Leon james", cover:"Kadhaippoma.jpg", src:"Kadhaippoma.mp3", duration:214},
+      {title:"Sidu Sidu", artist:"Barath Dhanasekar", cover:"Sidu.jpg", src:"Sidu Sidu.mp3", duration:214},
+      {title:"Pottala Muttaye", artist:"Santhosh Narayanan", cover:"Pottala.jpg", src:"Pottala Muttaye.mp3", duration:214},
+      {title:"Anbenum", artist:"Anirudh Ravichandar", cover:"Anbenum.jpg", src:"Anbenum.mp3", duration:214},
+      {title:"Andha Kanna Paathaakka", artist:"Anirudh Ravichander", cover:"MASTER.jpg", src:"Andha Kanna Paathaakka.mp3", duration:214},
+      {title:"Celebration of Varisu", artist:"Thaman S", cover:"Celebration of Varisu.jpg", src:"Celebration of Varisu.mp3", duration:214},
+      {title:"Jolly O Gymkhana", artist:"Anirudh Ravichander", cover:"Jolly O Gymkhana.jpg", src:"Jolly O Gymkhana.mp3", duration:214},
+      {title:"Kannana Kanne", artist:"Anirudh Ravichander", cover:"Kannana Kanne.jpg", src:"Kannana Kanne.mp3", duration:214},
+      {title:"Naanum Rowdy Dhaan", artist:"Anirudh Ravichander", cover:"Naanum Rowdy Dhaan.jpg", src:"Naanum Rowdy Dhaan.mp3", duration:214},
+      {title:"Neeyum Naanum", artist:"Anirudh Ravichander", cover:"Neeyum Naanum.jpg", src:"Neeyum Naanum.mp3", duration:214},
+      {title:"Oh Oh", artist:"Anirudh Ravichander", cover:"Oh Oh.jpg", src:"Oh Oh.mp3", duration:214},
+      {title:"Rathamaarey", artist:"Anirudh Ravichander", cover:"Rathamaarey.jpg", src:"Rathamaarey.mp3", duration:214},
+      {title:"Vaa Thalaivaa", artist:"Thaman", cover:"Vaa Thalaivaa.jpg", src:"Vaa Thalaivaa.mp3", duration:214},
+      {title:"Arabic Kuthu", artist:"Anirudh Ravichander", cover:"Arabic Kuthu.jpg", src:"Arabic Kuthu.mp3", duration:214},
+      {title:"Beast Mode", artist:"Anirudh Ravichander", cover:"Beast Mode.jpg", src:"Beast Mode.mp3", duration:214},
+      {title:"Chikitu", artist:"Anirudh Ravichander", cover:"Chikitu.jpg", src:"Chikitu.mp3", duration:214},
+      {title:"Kaavaalaa", artist:"Anirudh Ravichander", cover:"KAVALA.jpg", src:"Kaavaalaa.mp3", duration:214},
+      {title:"Kanima", artist:"Santhosh Narayanan", cover:"Kanima.jpg", src:"Kanima.mp3", duration:214},
+      {title:"Naa Ready", artist:"Anirudh Ravichander", cover:"Naa Ready.jpg", src:"Naa Ready.mp3", duration:214},
+      {title:"Powerhouse", artist:"Anirudh Ravichander", cover:"Powerhouse.jpg", src:"Powerhouse.mp3", duration:214},
+      {title:"Ranjithame", artist:"Anirudh Ravichander", cover:"Rathamaarey.jpg", src:"Ranjithame.mp3", duration:214},
+      {title:"Thee Thalapathy", artist:"Anirudh Ravichander", cover:"Thee Thalapathy.jpg", src:"Thee Thalapathy.mp3", duration:214},
+      {title:"Vaathi Coming", artist:"Anirudh Ravichander", cover:"Vaathi Coming.jpg", src:"Vaathi Coming.mp3", duration:214},
+      {title:"Vaathi Kabaddi", artist:"Anirudh Ravichander", cover:"Vaathi Kabaddi.jpg", src:"Vaathi Kabaddi.mp3", duration:214},
+      {title:"Vaathi Raid", artist:"Anirudh Ravichander", cover:"Vaathi Raid.jpg", src:"Vaathi Raid.mp3", duration:214},
+      {title:"Ranjha", artist:"Jasleen Royal", cover:"Ranjha.jpg", src:"Ranjha.mp3", duration:6},
+      {title:"Baby by justin Bieber",artist: "SoundHelix",cover: "Baby by justin Bieber.jpg",src: "Baby by justin Bieber.mp3",duration: 0},
+      {title: "Sáo paulo by Weeknd",artist: "SoundHelix",cover: "Sáo.jpg",src: "Sáo paulo by Weeknd.mp3",duration: 0},
+      {title: "Company by justin Bieber",artist: "SoundHelix",cover: "company.jpg",src: "Company by justin Bieber.mp3",duration: 0},
+      {title: "Salvatore by lana del rey",artist: "SoundHelix",cover: "lana.jpg",src: "Salvatore by lana del rey.mp3",duration: 0},
+      {title: "The night we met by lord hurton",artist: "SoundHelix",cover: "the night.jpg",src: "The night we met by lord hurton.mp3",duration: 0},
+      {title: "Wanna be yours by arctic monkeys",artist: "SoundHelix",cover: "arctic.jpg",src: "Wanna be yours by arctic monkeys.mp3",duration: 0},
+      {title: "Music to watch boys to by lana del rey",artist: "SoundHelix",cover: "music.jpg",src: "Music to watch boys to by lana del rey.mp3",duration: 0},
+      {title: "Judas by lady gaga",artist: "SoundHelix",cover: "Judas.jpg",src: "Judas by lady gaga.mp3",duration: 0},
+    ];
+
+    // ======= Playlists mapping =======
+    const playlists = {
+      HAPPY: ["Monica","Hey Minnale","Arabic Kuthu","Beast Mode","Chikitu","Kaavaalaa","Kanima","Naa Ready","Powerhouse","Ranjithame","Thee Thalapathy","Vaathi Coming","Vaathi Kabaddi","Vaathi Raid","Anbenum","Andha Kanna Paathaakka","Celebration of Varisu","Jolly O Gymkhana","Kannana Kanne","Naanum Rowdy Dhaan","Neeyum Naanum","Oh Oh","Rathamaarey"],
+      LOVE: ["Sawadeeka ",
+      "Yathe Yathe  ",
+      "Munbe Vaa En Anbe Vaa ",
+      "Urugi urugi",
+      "Chilanchirukiye ",
+      "Mudhal Nee Mudivum Nee",
+      "KanmoodiThirakumbothu",
+      "Sirikkadhey ",
+      "Marry me ",
+      "Innum Konjam Naeram",
+      "Nenjukkul Peidhidum",
+      "Vilambara Idaiveli",
+      "Onakkaaga Poranthaenae",
+      "Para para",
+      "Hey Minnale",
+      "Kadhaippoma",
+      "Sidu Sidu",
+      "Pottala Muttaye",], 
+      WORKOUT: ["Beast Mode","Chikitu","Kaavaalaa","Kanima","Naa Ready","Powerhouse","Ranjithame","Thee Thalapathy","Vaathi Coming","Vaathi Kabaddi","Vaathi Raid","Anbenum","Andha Kanna Paathaakka","Celebration of Varisu","Jolly O Gymkhana",],
+      ENGLISH:["Baby by justin Bieber",
+      "Sáo paulo by Weeknd",
+      "Company by justin Bieber",
+      "Salvatore by lana del rey",
+      "The night we met by lord hurton",
+      "Wanna be yours by arctic monkeys",
+      "Music to watch",
+      "Judas by lady gaga"],
+      MELODY:["Marry me ",
+      "Innum Konjam Naeram",
+      "Nenjukkul Peidhidum",
+      "Vilambara Idaiveli",
+      "Onakkaaga Poranthaenae",
+      "Para para",
+      "Hey Minnale",
+      "Kadhaippoma",
+      "Sidu Sidu",
+      "Pottala Muttaye",
+      "Sawadeeka ",
+      "Yathe Yathe  ",
+      "Munbe Vaa En Anbe Vaa ",
+      "Urugi urugi",
+      "Chilanchirukiye ",
+      "Mudhal Nee Mudivum Nee",
+      "KanmoodiThirakumbothu",
+      "Sirikkadhey ",],
+      HINDI:["Ranjha",
+      "Chammak challo shah Rukh Khan, kareena kapoor",
+      "Kesariya-Bramastra Rahin  kapoor, Alia bhatt",
+      "Tainu khabar nahi-Arijt singh Munjya",
+      "Paradesiya param sundari-sidharth M",
+      "Mera dil tera deewana",
+      "Shaky (ly) sanju rathod Ft. Isha malviya",
+      "Chennai Express shahrukh khan, deepika padukone",
+      "Raataan Lambiyan-shershaah sidharth m",
+      "Saree ke fall sa R. Rajkumar-pritam",
+      "Chalega shahrukh khan, Nayanthara Jawan",
+      "Raanjhanaa song, Dhanush, sonam kapoor",
+      "Guru tere bina ",
+      "Saiyaara song Ahaanpanday-Aneet padda",
+      "Tam tak",
+      "Mitwa",
+      "Chikni chameli",
+      "Khairiyat sushahant singh"],
+    };
+
+    // ======= State =======
+    const state = { list:[...demoTracks], index:0, isPlaying:false, shuffle:false, repeat:0 };
+
+    // ======= Elements =======
+    const audio=document.getElementById('audio');
+    const cover=document.getElementById('cover');
+    const songTitle=document.getElementById('songTitle');
+    const songArtist=document.getElementById('songArtist');
+    const playPauseBtn=document.getElementById('playPauseBtn');
+    const prevBtn=document.getElementById('prevBtn');
+    const nextBtn=document.getElementById('nextBtn');
+    const shuffleBtn=document.getElementById('shuffleBtn');
+    const repeatBtn=document.getElementById('repeatBtn');
+    const currentTimeEl=document.getElementById('currentTime');
+    const durationEl=document.getElementById('duration');
+    const seek=document.getElementById('seek');
+    const volume=document.getElementById('volume');
+    const searchInput=document.getElementById('searchInput');
+    const homeBtn=document.getElementById('homeBtn');
+    const cardGrid=document.getElementById('cardGrid');
+    const tracksList=document.getElementById('tracksList');
+
+    const fmt=sec=>{if(!sec||isNaN(sec))return'0:00';const m=Math.floor(sec/60);const s=Math.floor(sec%60).toString().padStart(2,'0');return `${m}:${s}`;}
+
+    function render(){
+      cardGrid.innerHTML=''; tracksList.innerHTML='';
+      state.list.forEach((t,i)=>{const card=document.createElement('article');card.className='card';card.innerHTML=`<img src="${t.cover}"/><div class="title">${t.title}</div><div class="subtitle">${t.artist}</div><div class="play-fab">▶</div>`;card.addEventListener('click',()=>play(i)); cardGrid.appendChild(card);const row=document.createElement('div');row.className='track';row.innerHTML=`<img src="${t.cover}"/><div><div class="t-title">${t.title}</div><div class="t-artist">${t.artist}</div></div><div class="dur">${fmt(t.duration)}</div>`;row.addEventListener('click',()=>play(i));tracksList.appendChild(row);});}
+
+    function load(i){const t=state.list[i]; if(!t)return; audio.src=t.src; cover.src=t.cover; songTitle.textContent=t.title; songArtist.textContent=t.artist; state.index=i;}
+    function play(i){load(i); audio.play(); state.isPlaying=true; playPauseBtn.textContent='⏸';}
+    function toggle(){if(state.isPlaying){audio.pause(); state.isPlaying=false; playPauseBtn.textContent='▶';} else {audio.play(); state.isPlaying=true; playPauseBtn.textContent='⏸';}}
+    function prev(){if(audio.currentTime>3){audio.currentTime=0;return;} state.index=(state.index-1+state.list.length)%state.list.length; play(state.index);}
+    function next(){if(state.shuffle){state.index=Math.floor(Math.random()*state.list.length);} else {state.index=(state.index+1)%state.list.length;} play(state.index);}
+
+    audio.addEventListener('timeupdate',()=>{seek.value=audio.currentTime/audio.duration*1000||0; currentTimeEl.textContent=fmt(audio.currentTime); durationEl.textContent=fmt(audio.duration);});
+    audio.addEventListener('ended',()=>{if(state.repeat===1)play(state.index); else if(state.repeat===2)next();});
+    seek.addEventListener('input',()=>audio.currentTime=seek.value/1000*audio.duration);
+    volume.addEventListener('input',()=>audio.volume=volume.value);
+
+    playPauseBtn.onclick=toggle;
+    prevBtn.onclick=prev;
+    nextBtn.onclick=next;
+    shuffleBtn.onclick=()=>{state.shuffle=!state.shuffle; shuffleBtn.style.color=state.shuffle?'#FFD700':'';}
+    repeatBtn.onclick=()=>{state.repeat=(state.repeat+1)%3; repeatBtn.textContent=['🔁','🔂','🔁∞'][state.repeat];}
+
+    // ======= Playlist clicks =======
+    document.querySelectorAll('.lib-item').forEach(el=>el.onclick=()=>{
+      const key=el.dataset.playlist;const names=playlists[key]||[];
+      state.list=demoTracks.filter(t=>names.includes(t.title));
+      render(); load(0);
+    });
+
+    // ======= Home Button =======
+    homeBtn.onclick=()=>{
+      state.list=[...demoTracks];
+      render();
+      load(0);
+    };
+
+    // ======= Search =======
+    searchInput.addEventListener('input',()=>{const q=searchInput.value.toLowerCase(); state.list=demoTracks.filter(t=>t.title.toLowerCase().includes(q)||t.artist.toLowerCase().includes(q)); render();});
+
+    // Init
+    render(); load(0);
+  </script>
+</body>
+</html>
